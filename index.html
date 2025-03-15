@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://code.highcharts.com/stock/highstock.js"></script>
+  </head>
+  <body>
+    <div id="container"></div>
+  </body>
+  <script>
+    // Some data from server
+    let data = (function () {
+      var data = [],
+        time = new Date().getTime(),
+        i;
+
+      for (i = -3600; i <= 0; i += 1) {
+        data.push([time + i * 1000, Math.random()]);
+      }
+      return data;
+    })();
+
+    // Request from server seting all data
+    const dataFromServer = data.slice();
+    setInterval(function () {
+      chart.series[0].setData(dataFromServer);
+    }, 5000);
+
+    const chart = Highcharts.stockChart("container", {
+      chart: {
+        events: {
+          load: function () {
+            var series = this.series[0];
+            setInterval(function () {
+              const lastPoint =
+                series.options.data[series.options.data.length - 1];
+              var x = lastPoint[0] + 1000,
+                y = null;
+
+              series.addPoint([x, y]);
+
+              // Simulate adding points on server
+              dataFromServer.push([x, Math.random()]);
+            }, 1000);
+          },
+        },
+      },
+
+      rangeSelector: {
+        selected: 0,
+        buttonTheme: {
+          width: 50,
+        },
+        buttons: [
+          {
+            type: "minute",
+            count: 5,
+            text: "5 min",
+            title: "View 5 min",
+          },
+          {
+            type: "minute",
+            count: 10,
+            text: "10 min",
+            title: "View 10 min",
+          },
+          {
+            type: "minute",
+            count: 15,
+            text: "15 min",
+            title: "View 15 min",
+          },
+          {
+            type: "minute",
+            count: 30,
+            text: "30 min",
+            title: "View 30 min",
+          },
+          {
+            type: "minute",
+            count: 60,
+            text: "60 min",
+            title: "View 60 min",
+          },
+        ],
+      },
+
+      plotOptions: {
+        series: {
+          turboThreshold: 10000,
+        },
+      },
+
+      navigator: {
+        enabled: false,
+      },
+
+      series: [
+        {
+          data: data,
+        },
+      ],
+    });
+  </script>
+</html>
